@@ -98,7 +98,7 @@ namespace Soap2Day.App
             }
         }
 
-        // Помощен метод за рендване на таблица (DRY - Don't Repeat Yourself)
+        
         private void RenderTable(List<MovieDto> movies, string title)
         {
             var table = new Table().Border(TableBorder.Rounded).BorderColor(Color.Cyan1);
