@@ -1,20 +1,33 @@
 using Spectre.Console;
-using Soap2Day.Services;
-using Soap2Day.Data;
-using Soap2Day.Models;
+using Soap2Day.Core.Contracts; 
+using Soap2Day.Core.Services;  
+using Soap2Day.Core.Models;    
+using Soap2Day.App.Menu;       
+using Soap2Day.Infrastructure.Data;
 
 namespace Soap2Day.App
 {
     public class Engine
     {
-        private readonly MovieService _service = new MovieService();
+        
+        private readonly IMovieService _service = new MovieService(); 
         private bool isRunning;
 
         public Engine()
         {
+            
+            using (var context = new Soap2DayDbContext())
+            {
+                // Изтрива базата, ако е стара/грешна (само за разработка!)
+                // context.Database.EnsureDeleted(); 
+                
+                // Създава базата наново с правилните типове (Genre като INT)
+                context.Database.EnsureCreated();
+            }
+            
             this.isRunning = true;
         }
-
+        
         public void Run()
         {
             AnsiConsole.Clear();
@@ -54,8 +67,25 @@ namespace Soap2Day.App
                 case "Добави филм":
                     var title = AnsiConsole.Ask<string>("Заглавие:");
                     var year = AnsiConsole.Ask<int>("Година:");
-                    var genre = AnsiConsole.Ask<string>("Жанр:");
-                    var rating = AnsiConsole.Ask<double>("Рейтинг (0-10):");
+
+                    // 1. Избор на Жанр от списък (Enum Selection)
+                    var genre = AnsiConsole.Prompt(
+                        new SelectionPrompt<Genre>()
+                            .Title("Изберете [green]жанр[/]:")
+                            .AddChoices(Enum.GetValues<Genre>()));
+
+                    // 2. Валидация на Рейтинг (Validation)
+                    var rating = AnsiConsole.Prompt(
+                        new TextPrompt<double>("Рейтинг (0-10):")
+                            .Validate(r => 
+                            {
+                                return r switch
+                                {
+                                    < 0 => ValidationResult.Error("[red]Рейтингът не може да е под 0[/]"),
+                                    > 10 => ValidationResult.Error("[red]Рейтингът не може да е над 10[/]"),
+                                    _ => ValidationResult.Success(),
+                                };
+                            }));
 
                     _service.AddMovie(new MovieDto { 
                         Title = title, 
@@ -68,7 +98,7 @@ namespace Soap2Day.App
 
                 case "Търсене":
                     var searchTerm = AnsiConsole.Ask<string>("[yellow]Въведете име на филм:[/]");
-                    var foundMovies = _service.SearchMovies(searchTerm); // Поправено от _movieService
+                    var foundMovies = _service.SearchMovies(searchTerm);
 
                     if (foundMovies.Count == 0)
                     {
@@ -76,45 +106,33 @@ namespace Soap2Day.App
                     }
                     else
                     {
-                        RenderTable(foundMovies, $"Резултати за: {searchTerm}");
+                        
+                        MenuRenderer.RenderTable(foundMovies, $"Резултати за: {searchTerm}");
                     }
                     break;
 
-                case "Списък с филми":
+               case "Списък с филми":
                     var allMovies = _service.GetAllMovies();
-                    RenderTable(allMovies, "Всички филми в Soap2Day");
+                    if (!allMovies.Any())
+                    {
+                        AnsiConsole.MarkupLine("[yellow]⚠ Базата данни е празна. Добавете филм първо![/]");
+                    }
+                    else
+                    {
+                        MenuRenderer.RenderTable(allMovies, "Всички филми в Soap2Day");
+                    }
                     break;
 
                 case "Изтрий филм":
-                    var movieToDelete = AnsiConsole.Ask<string>("Въведете точното заглавие на филма за изтриване:");
+                    var movieToDelete = AnsiConsole.Ask<string>("Въведете заглавие:");
                     _service.DeleteMovie(movieToDelete);
-                    AnsiConsole.MarkupLine($"[red]🗑 Филмът '{movieToDelete}' бе премахнат (ако е съществувал).[/]");
+                    AnsiConsole.MarkupLine($"[red]🗑 Премахнато![/]");
                     break;
 
                 case "Изход":
                     isRunning = false;
-                    
                     break;
             }
-        }
-
-        
-        private void RenderTable(List<MovieDto> movies, string title)
-        {
-            var table = new Table().Border(TableBorder.Rounded).BorderColor(Color.Cyan1);
-            table.Title($"[bold yellow]{title}[/]");
-            
-            table.AddColumn("Заглавие");
-            table.AddColumn("Година");
-            table.AddColumn("Жанр");
-            table.AddColumn("Рейтинг");
-
-            foreach (var m in movies)
-            {
-                table.AddRow(m.Title, m.Year.ToString(), m.Genre, $"⭐ {m.Rating:F1}");
-            }
-
-            AnsiConsole.Write(table);
         }
     }
 }

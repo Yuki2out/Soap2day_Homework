@@ -1,8 +1,7 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
   <ItemGroup>
-    <ProjectReference Include="..\Soap2Day.Data\Soap2Day.Data.csproj" />
-    <ProjectReference Include="..\Soap2Day.Models\Soap2Day.Models.csproj" />
+    <ProjectReference Include="..\Soap2Day.Infrastructure\Soap2Day.Infrastructure.csproj" />
   </ItemGroup>
 
   <PropertyGroup>

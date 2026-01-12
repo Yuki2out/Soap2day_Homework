@@ -1,6 +1,6 @@
 <Solution>
   <Project Path="Soap2Day.App/Soap2Day.App.csproj" />
-  <Project Path="Soap2Day.Data/Soap2Day.Data.csproj" />
-  <Project Path="Soap2Day.Models/Soap2Day.Models.csproj" />
-  <Project Path="Soap2Day.Services/Soap2Day.Services.csproj" />
+  <Project Path="Soap2Day.Core/Soap2Day.Core.csproj" />
+  <Project Path="Soap2Day.Infrastructure/Soap2Day.Infrastructure.csproj" />
+  <Project Path="Soap2Day.Util/Soap2Day.Util.csproj" />
 </Solution>

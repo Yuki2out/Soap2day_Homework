@@ -3,6 +3,9 @@
   <ItemGroup>
     <ProjectReference Include="..\Soap2Day.Services\Soap2Day.Services.csproj" />
     <ProjectReference Include="..\Soap2Day.Models\Soap2Day.Models.csproj" />
+    <ProjectReference Include="..\Soap2Day.Core\Soap2Day.Core.csproj" />
+    <ProjectReference Include="..\Soap2Day.Infrastructure\Soap2Day.Infrastructure.csproj" />
+    <ProjectReference Include="..\Soap2Day.Util\Soap2Day.Util.csproj" />
   </ItemGroup>
 
   <ItemGroup>

@@ -1,9 +1,8 @@
 using System.ComponentModel.DataAnnotations;
 
-
-namespace Soap2Day.Data
+namespace Soap2Day.Infrastructure.Data
 {
-    public class Movie
+    public class Movie 
     {
         [Key]
         public int Id { get; set; }
@@ -14,7 +13,8 @@ namespace Soap2Day.Data
 
         public int Year { get; set; }
 
-        public string Genre { get; set; } = null!;
+        
+        public Genre Genre { get; set; } 
 
         [Range(0, 10)]
         public double Rating { get; set; } 
